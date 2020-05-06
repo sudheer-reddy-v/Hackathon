@@ -11,7 +11,9 @@ import com.example.parkingconstructor.entity.ParkingReqDTO;
 @Repository
 public interface ParkingRequestRepo extends JpaRepository<ParkingReqDTO, Long> {
 	
-	@Query("select lot from ParkingReqDTO lot where status='Y'")
+	@Query("select lot from ParkingReqDTO lot where status='Y' AND reqType='Vacate'")
 	public List<ParkingReqDTO> findAvailedVactePaking();
 
+	@Query("select lot from ParkingReqDTO lot where status='Y' AND reqType='Request'")
+	public List<ParkingReqDTO> findAvailedRequestPaking();
 }

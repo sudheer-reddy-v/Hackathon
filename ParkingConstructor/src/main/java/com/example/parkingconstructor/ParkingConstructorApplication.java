@@ -1,5 +1,6 @@
 package com.example.parkingconstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import com.example.parkingconstructor.configuration.ParkFeignClient;
 import com.example.parkingconstructor.configuration.RibbonConfiguration;
 import com.example.parkingconstructor.entity.FreeParkingSpace;
 import com.example.parkingconstructor.entity.ParkingReqDTO;
+import com.example.parkingconstructor.repo.FreeSpaceRepo;
 import com.example.parkingconstructor.repo.ParkingRequestRepo;
 import com.example.parkingconstructor.service.ParkingLotserviceImpl;
 
@@ -31,6 +33,9 @@ public class ParkingConstructorApplication {
 	
 	@Autowired
 	ParkFeignClient client;
+	
+	@Autowired
+	FreeSpaceRepo freeSpace;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ParkingConstructorApplication.class, args);
@@ -39,7 +44,7 @@ public class ParkingConstructorApplication {
 	@Scheduled(initialDelay = 1000, fixedRate = 10000)
 	public void run() {
 		FreeParkingSpace space=new FreeParkingSpace();
-		List<ParkingReqDTO> details=repo.findAvailedVactePaking();
+		List<ParkingReqDTO> details=repo.findAvailedRequestPaking();
 		details.forEach(e->{
 			
 			long lotId=client.getLotId(e.getEid());
@@ -49,7 +54,19 @@ public class ParkingConstructorApplication {
 				space.setEmpId(e.getEid());
 				space.setLotId(lotId);
 				space.setReqId(e.getRequestID());
+				freeSpace.save(space);
 			}
+		});
+		//////
+			}
+	
+	@Scheduled(initialDelay = 1000, fixedRate = 10000)
+	public void run1() {
+		FreeParkingSpace space=new FreeParkingSpace();
+		List<ParkingReqDTO> details=repo.findAvailedRequestPaking();
+		details.forEach(e->{
+		List<FreeParkingSpace> list=freeSpace.findAvalibleSlots(e.getFromDate(), e.getToDate());
+			
 		});
 		//////
 			}
